@@ -1,0 +1,528 @@
+;练习1.9
+;inc：将参数增加1
+;dec：将参数减少1
+
+#|
+(define (+ a b)
+  (if (= a 0)
+      b
+      (inc (+ (dec a) b))))
+|#
+;计算过程是递归的
+
+#|
+(define (+ a b)
+  (if (= a 0)
+      b
+      (+ (dec a) (inc b))))
+|#
+;计算过程是迭代的
+
+;练习1.10
+
+#|
+(define (A x y)
+  (cond ((= x 0) (+ y 1))
+        ((= y 0) (A (- x 1) 1))
+        (else (A (- x 1)
+                 (A x (- y 1))))))
+|#
+;难得丧心病狂
+
+(define (A x y)
+  (cond ((= y 0) 0)
+        ((= x 0) (* 2 y))
+        ((= y 1) 2)
+        (else (A (- x 1)
+                 (A x (- y 1))))))
+;这是Ackermann函数的变体
+
+#|
+(define (f n) (A 0 n))
+: 2n
+(define (g n) (A 1 n))
+: 2^n
+(define (h n) (A 2 n))
+: 2↑↑n
+(define (k n) (A 3 n))
+: 2↑↑↑n
+|#
+;答案
+
+;练习1.11
+
+(define (f n)
+  (if (< n 3)
+      n
+      (+ (f (- n 1))
+         (* 2 (f (- n 2)))
+         (* 3 (f (- n 3))))))
+
+(define (f n)
+  (define (f-deal n n1 a1 a2 a3)
+    (if (= n n1)
+        a1
+        (f-deal n (+ n1 1)
+           (+ a1 (* 2 a2) (* 3 a3))
+           a1 a2)))
+  (if (< n 3)
+      n
+      (f-deal n 2 2 1 0)))
+
+;练习1.12
+
+(define (com a n)
+  (cond ((= a 0) 1)
+        ((= n a) 1)
+        (else (+ (com (- a 1) (- n 1))
+                 (com a (- n 1))))))
+
+;练习1.14
+#|
+5~15
+6~20
+7~23
+8~26
+9~29
+10~32
+11~36
+步数是Θ(n)
+空间可能是Θ(2^n)
+|#
+
+
+;练习1.15
+(define (cube x) (* x x x))
+
+(define (p x) (- (* 3 x) (* 4 (cube x))))
+
+(define (sine angle)
+  (if (not (> (abs angle) 0.1))
+      angle
+      (p (sine (/ angle 3.0)))))
+
+#|
+a)
+16+8+4+2+1=31次
+12.15/3 五次
+2^5-1
+
+b)
+步数 = 2^(((log3)10a)+1)
+增长的阶是Θ(2^n)
+同上
+|#     
+              
+;练习1.16
+;迭代方式的求幂计算过程
+(define (fast-iter b n)
+  (define (fast-expt-iter b n a c)
+    (cond ((= n 0) 1)
+          ((= 1 n) (* c a))
+          ((and (even? n) (< 1 n)) (fast-expt-iter b (/ n 2) (square a) c))
+          (else (fast-expt-iter b (- n 1) a (* a c)))))
+  (define (square x)
+    (* x x))
+  (define (even? n)
+    (= (remainder n 2) 0))
+  (fast-expt-iter b n b 1))
+;利用一个变量来存储指数为奇数时的乘数，在输出时将其乘回乘积
+
+;练习1.17
+;通过反复做加法的方式求出乘积
+;递归定义式
+(define (* a b)
+  (if (= b 0)
+      0
+      (+ a (* a (- b 1)))))
+
+;要求写出其类似的步数为对数的形式
+;可以用递归
+;迭代版本
+(define (fast-mul a b)
+  (define (double x)
+    (* 2 x))
+  (define (halve x)
+    (/ x 2))
+  (define (even? n)
+    (= (remainder n 2) 0))
+  (define (fast-mul-iter a b c)
+    (cond ((= b 1) (+ a c))
+          ((even? b) (fast-mul-iter (double a) (halve b) c))
+          (else (fast-mul-iter a (- b 1) (+ c a)))))
+  (fast-mul-iter a b 0))
+  
+;彩蛋：542*123=66666
+;递归版本
+(define (fast-mul a b)
+  (define (double x)
+    (* 2 x))
+  (define (halve x)
+    (/ x 2))
+  (define (even? n)
+    (= (remainder n 2) 0))
+  (define (fast-mul-rec a b)
+    (cond ((= b 1) a)
+          ((even? b) (double (fast-mul-rec a (/ b 2))))
+          (else (+ (fast-mul-rec a (- b 1)) a))))
+  (fast-mul-rec a b))
+
+;练习1.18
+;上面已给出
+
+;练习1.19
+#|
+(bp+aq)q+(bq+aq+ap)q+(bq+aq+ap)p
+(bp+aq)p+(bq+aq+ap)q
+两式消元，得：
+q' = 2pq+qq
+p' = pp+qq
+|#
+
+(define (fib n)
+  (fib-iter 1 0 0 1 n))
+
+(define (fib-iter a b p q count)
+  (cond ((= count 0) b)
+        ((even? count)
+         (fib-iter a
+                   b
+                   (+ (* p p) (* q q))
+                   (+ (* 2 (* p q)) (* q q))
+                   (/ count 2)))
+        (else (fib-iter (+ (* b q) (* a q) (* a p))
+                        (+ (* b p) (* a q))
+                        p
+                        q
+                        (- count 1)))))
+
+;练习1.20
+
+(define (gcd a b)
+  (if (= b 0)
+      a
+      (gcd b (remainder a b))))
+
+#|
+正则序
+(gcd 206 40)
+(gcd 40 (remainder 206 40))
+(gcd (remainder 206 40) (remainder 40 (remainder 206 40)))
+(gcd (remainder 40 (remainder 206 40))
+     (remainder (remainder 206 40) (remainder 40 (remainder 206 40))))
+(gcd (remainder
+      (remainder
+       206 40)
+      (remainder
+       40 (reamainder 206 40)))     
+     (remainder
+      (remainder
+       40 (remainder 206 40))
+      (remainder
+       (reamainder
+        206 40)
+       (remainder
+        40 (remainder 206 40)))))
+11次
+|#
+
+
+                
+
+#|
+应用序
+(gcd 206 40)
+(gcd 40 (remainder 206 40))
+(gcd 40 6)
+(gcd 6 (remainder 40 6))
+(gcd 6 4)
+(gcd 4 (remainder 6 4))
+(gcd 4 2)
+(gcd 2 (remainder 4 2))
+(gcd 2 0)
+=2
+执行了4次
+|#
+
+;练习1.21
+#|
+最小因子：
+199-199
+1999-1999
+19999-7
+|#
+
+;练习1.22
+(define (smallest-divisor n)
+  (find-divisor n 2))
+;寻找最小的因数
+
+(define (square x)
+  (* x x))
+
+(define (find-divisor n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+        ((divides? test-divisor n) test-divisor)
+        (else (find-divisor n (+ test-divisor 1)))))
+;从数“test-divisor”开始寻找因数（除数）
+
+(define (divides? a b)
+  (= (remainder b a) 0))
+;测试a是否整除b
+
+(define (prime? n)
+  (= n (smallest-divisor n)))
+;如果最小的因素是n本身，则n是素数
+
+(define (timed-prime-test n)
+  (newline)
+  (display n)
+  (start-prime-test n (runtime)))
+;测试检测n为素数所需要的时间
+
+(define (start-prime-test n start-time)
+  (if (prime? n)
+      (report-prime (- (runtime) start-time))))
+;如果n是素数，输出花费时间
+
+(define (report-prime elapsed-time)
+  (display " *** ")
+  (display elapsed-time))
+;输出时间
+
+;search-for-primes过程：它检查给定范围内连续的各个奇数的素性
+;用过程找出大于1000、大于10 000、大于100 000和大于1 000 000的三个最小素数
+
+(define (search-for-primes start)
+  (if (prime? start)
+      start
+      (search-for-primes (+ start 1))))
+
+#|
+最小素数
+1000:1009、1013、1019
+10000:10007、10009、10037
+100000:100003、100019、100043
+1000000:1000003、1000033、1000037
+|#
+
+#|
+检测时间
+1009:0
+1013:0
+1019:0
+10007:596
+10009:670
+10037:997
+100003:4988
+100019:5985
+100043:6687
+1000003:58838
+1000033:56289
+1000037:81012
+几乎不支持其为n^(1/2)的情况
+|#
+
+
+;练习1.23
+
+(define (prime? n)
+  (define (square x)
+    (* x x))
+  (define (divides? a b)
+    (= (remainder b a) 0))
+  (define (next n)
+    (if (= n 2)
+        3
+        (+ n 2)))
+  (define (find-divisor n test-divisor)
+    (cond ((> (square test-divisor) n) n)
+          ((divides? test-divisor n) test-divisor)
+          (else (find-divisor n (next test-divisor)))))
+  (define (smallest-divisor n)
+    (find-divisor n 2))
+  (= n (smallest-divisor n)))
+
+#|
+检测时间
+1009:0
+1013:0
+1019:0
+10007:596-998
+10009:670-993
+10037:997-850
+100003:4988-2369
+100019:5985-2993
+100043:6687-2604
+1000003:58838-27940
+1000033:56289-29925
+1000037:81012-27930
+当n很大时，基本符合这一预期（减半）
+|#
+
+;练习1.24
+
+#|
+ (define (expmod base exp m)
+   (cond ((= exp 0) 1)
+         ((even? exp)
+          (remainder (square (expmod base (/ exp 2) m))
+                     m))
+         (else
+          (remainder (* base (expmod base (- exp 1) m))
+                     m))))
+
+ (define (fermat-test n)
+   (define (try-it a)
+     (= (expmod a n n) a))
+   (try-it (+ 1 (random (- n 1)))))
+
+ (define (fast-prime? n times)
+   (cond ((= times 0) true)
+         ((fermat-test n) (fast-prime? n (- times 1)))
+         (else false)))
+
+(define (timed-prime-test n)
+  (define (start-prime-test n start-time)
+    (if (fast-prime? n 1)
+        (report-prime (- (runtime) start-time))))
+  (define (report-prime elapsed-time)
+    (display " *** ")
+    (display elapsed-time))
+  (newline)
+  (display n)
+  (start-prime-test n (runtime)))
+|#
+
+#|
+检测时间
+1009:0
+1013:0
+1019:0
+;2^10
+10007:0
+10009:0
+10037:0
+;2^14
+100003:0
+100019:0
+100043:0
+;2^17
+1000003:0
+1000033:0
+1000037:0
+;2^20
+取众数
+运行环境的不同会影响运行时间
+;在新环境中运行极快
+;大部分数据符合预期
+;不符合预期的地方：
+不是算法而是执行机器本身的问题
+|#
+
+;将程序都扔在代码块中能提高运行速度
+
+;练习1.25
+     
+ (define (fast-prime? n times)
+   (define (expmod base exp m)
+     (define (square x)
+       (* x x))
+     (define (even? n)
+       (= (remainder n 2) 0))
+     (define (fast-expt b n)
+       (cond ((= n 0) 1)
+             ((even? n) (square (fast-expt b (/ n 2))))
+             (else (* b (fast-expt b (- n 1))))))
+     (remainder (fast-expt base exp) m))
+   (define (fermat-test n)
+     (define (try-it a)
+       (= (expmod a n n) a))
+     (try-it (+ 1 (random (- n 1)))))
+   (cond ((= times 0) true)
+         ((fermat-test n) (fast-prime? n (- times 1)))
+         (else false)))
+;可以
+;这里 fast-expt 成为了一层抽象
+
+;练习1.26
+
+#|
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp)
+         (remainder (* (expmod base (/ exp 2) m)
+                       (expmod base (/ exp 2) m))
+                    m))
+         (else
+          (remainder (* base (expmod base (- exp 1) m))
+                     m))))
+|#
+
+#|
+应用序先对参数求值而后计算，
+这里将square转换为两次expmod过程自然将导致两次递归调用
+由于在(/ exp 2)时出现两次调用，原本其带来的效率加成被抵消
+|#
+
+;练习1.27
+;可以骗过
+
+;练习1.28
+;其实是费马检查的变形
+(define (miller-rabin-test n)
+  (define (expmod base exp m)
+    (define (square x)
+      (* x x))
+    (define (even? n)
+      (= (remainder n 2) 0))
+    (define (fast-expt b n a c)
+      (cond ((= n 0) 1)
+            ((= n 1) (* a c))
+            ((even? n) (fast-expt b (/ n 2) (square a) c))
+            (else (fast-expt b (- n 1) a (* c a)))))
+    ;注意，在指数出现奇数时要乘以现有底数而不是原底数
+    (remainder (fast-expt base exp base 1) m))
+  (define (random-control n)
+    (define (control n)
+      (cond ((< n 1) (+ n 2))
+            ((= 1 n) (+ n 1))
+            (else n)))
+    (control (random n)))
+  ;防止检测数出现1与n-1的情况
+  (define (try-it a)
+    (= (expmod a (- n 1) n)
+       (remainder 1 n)))
+  (cond ((= n 1) (= 0 1))
+        ((= n 2) (= 0 0))
+        (else (try-it (random-control (- n 1))))))
+;去看算法，重写一遍，这里少了检查。
+;题目错了，是-1的非平凡平方根
+
+(define (miller-rabin-test n)
+  (define (expmod base exp m)
+    (define (square x)
+      (* x x))
+    (define (even? n)
+      (= (remainder n 2) 0))
+    (define (non-trivial-test b n)
+      (and (= (remainder (square b) n) 1)
+           (not (= b (- n 1)))
+           (not (= b 1))))
+    (define (fast-expt b n a c)
+      (cond ((= n 0) 1)
+            ((= n 1) (* a c))
+            ((and (even? n) (non-trivial-test a n))
+                  (fast-expt b (/ n 2) (square a) c))
+            (else (fast-expt b (- n 1) a (* c a)))))
+    (remainder (fast-expt base exp base 1) m))
+  (define (random-control n)
+    (define (control n)
+      (cond ((< n 1) (+ n 2))
+            ((= 1 n) (+ n 1))
+            (else n)))
+    (control (random n)))
+  (define (try-it a)
+    (= (expmod a (- n 1) n)
+       (remainder 1 n)))
+  (try-it (random-control (- n 1))))
