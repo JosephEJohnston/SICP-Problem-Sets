@@ -1,5 +1,3 @@
-#lang sicp
-
 
 (define (assoc key records)
   (cond ((null? records) false)

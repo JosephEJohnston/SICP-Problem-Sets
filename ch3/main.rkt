@@ -185,8 +185,67 @@
          queue)))
 |#
 
+; 查找 records 中是否存在对应的 key
+(provide assoc)
+(define (assoc key records)
+  (cond ((null? records) false)
+        ((equal? key (caar records)) (car records))
+        (else (assoc key (cdr records)))))
 
+; 查找 table 中对应 key 的数据
+(provide lookup)
+(define (lookup key table)
+  (let ((record (assoc key (cdr table))))
+    (if record
+        (cdr record)
+        false)))
 
+; 两维表格数据结构
+(provide make-table)
+(define (make-table)
+  (let ((local-table (list '*table*)))
+
+    ; 用 key-1 查找子表格，用 key-2 在这个子表格里确定记录
+    (define (lookup key-1 key-2)
+      (let ((subtable (assoc key-1 (cdr local-table))))
+        (if subtable
+            (let ((record (assoc key-2 (cdr subtable))))
+              (if record
+                  (cdr record)
+                  false))
+            false)))
+
+    ; 在 key-1 子表格中，插入名为 key-2 的记录
+    (define (insert! key-1 key-2 value)
+      (let ((subtable (assoc key-1 (cdr local-table))))
+        (if subtable
+            (let ((record (assoc key-2 (cdr subtable))))
+              (if record
+                  (set-cdr! record value)
+                  (set-cdr! subtable
+                            (cons (cons key-2 value)
+                                  (cdr subtable)))))
+            (set-cdr! local-table
+                      (cons (list key-1
+                                  (cons key-2 value))
+                            (cdr local-table)))))
+      'ok)
+
+    (define (dispatch m)
+      (cond ((eq? m 'lookup-proc) lookup)
+            ((eq? m 'insert-proc!) insert!)
+            (else (error "Unknown operation -- TABLE" m))))
+
+    dispatch))
+
+(provide operation-table)
+(define operation-table (make-table))
+
+(provide get)
+(define get (operation-table 'lookup-proc))
+
+(provide put)
+(define put (operation-table 'insert-proc!))
 
 
     
