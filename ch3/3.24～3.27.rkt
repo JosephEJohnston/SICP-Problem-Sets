@@ -71,6 +71,96 @@
 
 ; 3.26, 2022/01/28
 ; 请描述一种表格实现，其中的 (key, value) 记录用二叉树形式组织起来
+#|
+|l|r|value|
+|#
+
+(define (node value)
+  (let ((left '())
+        (right '()))
+
+    (define (left-node)
+      left)
+
+    (define (right-node)
+      right)
+
+    (define (get-value)
+      value)
+    
+    (define (set-left-node! value)
+      (set! left (node value)))
+
+    (define (set-right-node! value)
+      (set! right (node value)))
+
+    (define (dispatch m)
+      (cond ((eq? m 'left-node) left-node)
+            ((eq? m 'right-node) right-node)
+            ((eq? m 'get-value) get-value)
+            ((eq? m 'set-left-node!) set-left-node!)
+            ((eq? m 'set-right-node!) set-right-node!)
+            (else (error "Unknown operation -- NODE" m))))
+
+    dispatch))
+
+(define (binary-tree compare-to)
+  (let ((tree (list '*tree*)))
+
+    (define (tree-node)
+      (cdr tree))
+    
+    (define (empty?)
+      (= 1 (length tree)))
+
+    (define (lookup value)
+      (define (lookup-iter node value)
+        (if (null? node)
+            '()
+            (let ((compare-result (compare-to ((node 'get-value)) value)))
+              (cond ((= 0 compare-result) node)
+                    ((> 0 (compare-result))
+                     (lookup-iter ((node 'right-node)) value))
+                    (else
+                     (lookup-iter ((node 'left-node)) value))))))
+
+      (if (empty?)
+          '()
+          (lookup-iter (tree-node) value)))
+
+    (define (insert! value)
+      (define (insert-iter node value)
+        (if (null? node)
+            
+        
+      
+      (if (empty?)
+          (set! tree (cons (car tree)
+                           (node value)))
+          (insert-iter (tree-node) value)))
+    
+    
+
+#|
+(define (int-compare-to first second)
+  (cond ((> first second) 1)
+        ((< first second) -1)
+        (else 0)))
+
+(define int-tree
+  (binary-tree int-compare-to))
+|#
+
+
+#|
+二叉树测试
+(define test-tree int-tree)
+((test-tree 'insert-proc!) 1)
+((test-tree 'insert-proc!) 2)
+((test-tree 'insert-proc!) 3)
+((test-tree 'print-proc))
+|#
+
 (define (make-tree-table same-key?)
   (let ((local-table (list '*table*)))
 
@@ -118,29 +208,4 @@
             (else (error "Unknown operation -- TABLE" m))))
 
     dispatch))
-
-(define (binary-tree bigger?)
-  ((let (tree (list '*binary-tree*)))
-
-   (define (empty?)
-     (= (length tree) 1))
-   
-   (define (lookup value)
-     (if (empty)
-         (error "Tree is empty -- TREE"))
-   
-   (define (insert! value)
-     ())
-
-   (define (print)
-     tree)
-   
-   (define (dispatch m)
-     (cond ((eq? m 'lookup-proc) lookup)
-           ((eq? m 'insert-proc!) insert!)
-           ((eq? m 'print-proc) print)
-           (else (error "Unknown operation -- TREE" m))))
-
-   dispatch))
-
 
