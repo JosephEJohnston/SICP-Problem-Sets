@@ -104,7 +104,6 @@
 
     dispatch))
 
-; 2022/2/6，成功实现二叉树
 (define (binary-tree compare-to)
   (let ((tree (list '*tree*)))
 
@@ -112,15 +111,15 @@
       (cdr tree))
     
     (define (empty?)
-      (null? (cdr tree)))
+      (= 1 (length tree)))
 
     (define (lookup value)
       (define (lookup-iter node value)
         (if (null? node)
             '()
             (let ((compare-result (compare-to ((node 'get-value)) value)))
-              (cond ((= 0 compare-result) 'exists)
-                    ((> 0 compare-result)
+              (cond ((= 0 compare-result) node)
+                    ((> 0 (compare-result))
                      (lookup-iter ((node 'right-node)) value))
                     (else
                      (lookup-iter ((node 'left-node)) value))))))
@@ -130,62 +129,19 @@
           (lookup-iter (tree-node) value)))
 
     (define (insert! value)
-      (define (insert-iter sub-tree value)
-        (let ((compare-result (compare-to ((sub-tree 'get-value)) value)))
-          (cond ((= 0 compare-result) tree-node)
-                ((> 0 compare-result)
-                 (let ((right-node ((sub-tree 'right-node))))
-                   (if (null? right-node)
-                       ((sub-tree 'set-right-node!) value)
-                       (insert-iter right-node value))))
-                ((< 0 compare-result)
-                 (let ((left-node ((sub-tree 'left-node))))
-                   (if (null? left-node)
-                       ((sub-tree 'set-left-node!) value)
-                       (insert-iter left-node value)))))))
+      (define (insert-iter node value)
+        (if (null? node)
+            
+        
       
       (if (empty?)
           (set! tree (cons (car tree)
                            (node value)))
           (insert-iter (tree-node) value)))
-
-    (define (print)
-      (let ((sub-tree (tree-node)))
-        (define (print-line num)
-          (if (> num 0)
-              (begin
-                (display '-)
-                (print-line (- num 1)))
-              '()))
-
-        (define (print-node node level)
-          (begin
-            (print-line level)
-            (display ((node 'get-value)))
-            (newline)))
-        
-        (define (print-iter current-node level)
-          (if (null? current-node)
-              '()
-              (let ((left-tree ((current-node 'left-node)))
-                    (right-tree ((current-node 'right-node))))
-                (begin
-                  (print-node current-node level)
-                  (print-iter left-tree (+ level 1))
-                  (print-iter right-tree (+ level 1))))))
-
-        (print-iter sub-tree 0)))
     
-    (define (dispatch m)
-      (cond ((eq? m 'empty?) empty?)
-            ((eq? m 'lookup-proc!) lookup)
-            ((eq? m 'insert-proc!) insert!)
-            ((eq? m 'print-proc) print)
-            (else (error "Unknown operation -- BINARY-TREE" m))))
-
-    dispatch))
     
 
+#|
 (define (int-compare-to first second)
   (cond ((> first second) 1)
         ((< first second) -1)
@@ -193,24 +149,17 @@
 
 (define int-tree
   (binary-tree int-compare-to))
+|#
 
 
-
-;二叉树测试
+#|
+二叉树测试
 (define test-tree int-tree)
-((test-tree 'insert-proc!) 2)
 ((test-tree 'insert-proc!) 1)
+((test-tree 'insert-proc!) 2)
 ((test-tree 'insert-proc!) 3)
-((test-tree 'insert-proc!) 4)
-
-((test-tree 'lookup-proc!) 0)
-((test-tree 'lookup-proc!) 1)
-((test-tree 'lookup-proc!) 2)
-((test-tree 'lookup-proc!) 3)
-((test-tree 'lookup-proc!) 4)
-
 ((test-tree 'print-proc))
-
+|#
 
 (define (make-tree-table same-key?)
   (let ((local-table (list '*table*)))
