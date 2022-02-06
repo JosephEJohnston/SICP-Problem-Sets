@@ -170,8 +170,8 @@
               (let ((left-tree ((current-node 'left-node)))
                     (right-tree ((current-node 'right-node))))
                 (begin
-                  (print-node current-node level)
                   (print-iter left-tree (+ level 1))
+                  (print-node current-node level)
                   (print-iter right-tree (+ level 1))))))
 
         (print-iter sub-tree 0)))
@@ -197,6 +197,7 @@
 
 
 ;二叉树测试
+#|
 (define test-tree int-tree)
 ((test-tree 'insert-proc!) 2)
 ((test-tree 'insert-proc!) 1)
@@ -210,7 +211,7 @@
 ((test-tree 'lookup-proc!) 4)
 
 ((test-tree 'print-proc))
-
+|#
 
 (define (make-tree-table same-key?)
   (let ((local-table (list '*table*)))
