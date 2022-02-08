@@ -86,8 +86,9 @@
          (set-front-ptr! queue (cdr (front-ptr queue)))
          queue)))
 
-; 待处理表
+;; 待处理表
 
+; 时间段数据结构，由[时间]和[处理队列]组成
 (define (make-time-segment time queue)
   (cons time queue))
 
@@ -95,8 +96,11 @@
 
 (define (segment-queue s) (cdr s))
 
+; 待处理表数据结构，其由时间段组成
+; 返回一个新的空的待处理表，由[当前时间]和[时间段]组成
 (define (make-agenda) (list 0))
 
+; 返回当时的模拟时间
 (define (current-time agenda) (car agenda))
 
 (define (set-current-time! agenda time)
@@ -111,18 +115,24 @@
 
 (define (rest-segments agenda) (cdr (segments agenda)))
 
+; 检查待处理表是否为空
 (define (empty-agenda? agenda)
   (null? (segments agenda)))
 
+; 修改待处理表，加入一项，要求在特定时间运行给定的动作过程
 (define (add-to-agenda! time action agenda)
+  ; 检查表是否为空，或者比当前时间小
   (define (belongs-before? segments)
     (or (null? segments)
         (< time (segment-time (car segments)))))
 
+  ; 创建新的时间段
   (define (make-new-time-segment time action)
     (let ((q (make-queue)))
-      (insert-queue! q action)))
+      (insert-queue! q action)
+      (make-time-segment time q)))
 
+  ; 将新的时间段插入到待处理表中；递归遍历待处理表，找到合适的位置就插入
   (define (add-to-segments! segments)
     (if (= (segment-time (car segments)) time)
         (insert-queue! (segment-queue (car segments))
@@ -143,12 +153,14 @@
                segments))
         (add-to-segments! segments))))
 
+; 修改待处理表，删除其中的第一个项目
 (define (remove-first-agenda-item! agenda)
   (let ((q (segment-queue (first-segment agenda))))
     (delete-queue! q)
     (if (empty-queue? q)
         (set-segments! agenda (rest-segments agenda)))))
 
+; 返回待处理表里的第一个项目
 (define (first-agenda-item agenda)
   (if (empty-agenda? agenda)
       (error "Agenda is empty -- FIRST-AGENDA-ITEM")
