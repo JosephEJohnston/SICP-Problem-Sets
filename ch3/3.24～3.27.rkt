@@ -170,8 +170,8 @@
               (let ((left-tree ((current-node 'left-node)))
                     (right-tree ((current-node 'right-node))))
                 (begin
-                  (print-node current-node level)
                   (print-iter left-tree (+ level 1))
+                  (print-node current-node level)
                   (print-iter right-tree (+ level 1))))))
 
         (print-iter sub-tree 0)))
