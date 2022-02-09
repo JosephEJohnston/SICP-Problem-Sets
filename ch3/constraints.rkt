@@ -1,21 +1,28 @@
 #lang sicp
 
+(#%require (only racket provide))
 
+(provide has-value?)
 (define (has-value? connector)
   (connector 'has-value?))
 
+(provide get-value)
 (define (get-value connector)
   (connector 'value))
 
+(provide set-value!)
 (define (set-value! connector new-value informant)
   ((connector 'set-value!) new-value informant))
 
+(provide forget-value!)
 (define (forget-value! connector retractor)
   ((connector 'forget) retractor))
 
+(provide connect)
 (define (connect connector new-constraint)
   ((connector 'connect) new-constraint))
 
+; 将一个指定过程应用于一个表中的所有对象，除了一个给定的例外（exception）
 (define (for-each-except exception procedure list)
   (define (loop items)
     (cond ((null? items) 'done)
@@ -25,10 +32,12 @@
   (loop list))
 
 ; 连接器
+(provide make-connector)
 (define (make-connector)
   (let ((value false) (informant false) (constraints '()))
     (define (set-my-value newval setter)
       (cond ((not (has-value? me))
+             ; 设置值，并通知所有约束
              (set! value newval)
              (set! informant setter)
              (for-each-except setter
@@ -40,16 +49,19 @@
 
     (define (forget-my-value retractor)
       (if (eq? retractor informant)
+          ; 重置值，而后通知除了修改者（retractor）外的所有约束
           (begin (set! informant false)
                  (for-each-except retractor
                                   inform-about-no-value
                                   constraints))
           'ignored))
 
+    ; 给连接添加新的约束
     (define (connect new-constraint)
       (if (not (memq new-constraint constraints))
           (set! constraints
                 (cons new-constraint constraints)))
+      ; 如果有值，通知新约束
       (if (has-value? me)
           (inform-about-value new-constraint))
       'done)
@@ -73,6 +85,7 @@
   (constraint 'I-lost-my-value))
 
 ; 常量
+(provide constant)
 (define (constant value connector)
   (define (me request)
     (error "Unknown request -- CONSTANT" request))
@@ -82,6 +95,7 @@
   me)
 
 ; 乘法约束
+(provide multiplier)
 (define (multiplier m1 m2 product)
   (define (process-new-value)
     (cond ((or (and (has-value? m1) (= (get-value m1) 0))
@@ -120,6 +134,7 @@
   me)
 
 ; 加法约束
+(provide adder)
 (define (adder a1 a2 sum)
   (define (process-new-value)
     (cond ((and (has-value? a1) (has-value? a2))
@@ -154,6 +169,7 @@
   (connect sum me)
   me)
 
+(provide probe)
 (define (probe name connector)
   (define (print-probe value)
     (newline)
@@ -194,6 +210,9 @@
     (constant 32 y)
     'ok))
 
+
+; 测试
+#|
 (define C (make-connector))
 (define F (make-connector))
 
@@ -203,8 +222,6 @@
 (probe "Celsius temp" C)
 (probe "Fahrenheit temp" F)
 
-; 测试
-#|
 (set-value! C 25 'user)
 
 (set-value! F 212 'user)
