@@ -28,7 +28,7 @@
 (define (test-and-set! cell)
   (if (car cell)
       true
-      (begin (set-car! cell true) ; 获取互斥元
+      (begin (set-car! cell true)
              false)))
 
 (define (clear! cell)
@@ -39,7 +39,7 @@
   (let ((cell (list false)))
     (define (the-mutex m)
       (cond ((eq? m 'acquire)
-             (if (test-and-set! cell) ; 若互斥元已被获取
+             (if (test-and-set! cell)
                  (the-mutex 'acquire))) ; retry
             ((eq? m 'release) (clear! cell))))
     the-mutex))
