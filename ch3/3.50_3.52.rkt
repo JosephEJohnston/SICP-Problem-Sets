@@ -9,9 +9,9 @@
   (if (stream-null? (car argstreams))
       the-empty-stream
       (cons-stream
-       (apply proc (map car argstreams))
+       (apply proc (map stream-car argstreams))
        (apply stream-map
-              (cons proc (map cdr argstreams))))))
+              (cons proc (map stream-cdr argstreams))))))
 
 |#
 

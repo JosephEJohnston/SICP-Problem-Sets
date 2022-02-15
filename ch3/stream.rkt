@@ -10,11 +10,23 @@
       (stream-ref (stream-cdr s) (- n 1))))
 
 (provide stream-map)
+#|
 (define (stream-map proc s)
   (if (stream-null? s)
       the-empty-stream
       (cons-stream (proc (stream-car s))
                    (stream-map proc (stream-cdr s)))))
+
+|#
+
+(define (stream-map proc . argstreams)
+  (if (stream-null? (car argstreams))
+      the-empty-stream
+      (cons-stream
+       (apply proc (map stream-car argstreams))
+       (apply stream-map
+              (cons proc (map stream-cdr argstreams))))))
+
 
 (define (stream-for-each proc s)
   (if (stream-null? s)
@@ -33,8 +45,10 @@
 
 
 ; (cons-stream <a> <b>): 特殊形式,等价于 (cons <a> (delay <b>))
+(provide stream-car)
 (define (stream-car stream) (car stream))
 
+(provide stream-cdr)
 (define (stream-cdr stream) (force (cdr stream)))
 
 
