@@ -4,7 +4,7 @@
 (#%require (only racket provide))
 (#%require "stream.rkt")
 
-(provide ones)
+
 (define ones (cons-stream 1 ones))
 
 (provide add-streams)
