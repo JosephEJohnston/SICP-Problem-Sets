@@ -25,6 +25,10 @@
 (define integers-pairs-all (pairs-all integers integers))
 
 ; 3.68, 2022/02/25，他的方法能行吗
+#|
+
+|#
+
 (define (pairs-wrong s t)
   (interleave
    (stream-map (lambda (x) (list (stream-car s) x))
@@ -40,48 +44,5 @@
 ;; 其中 i<=j<=k
 ; b) 生成所有正的毕达哥拉斯三元组的流
 ;; 也就是说，生成所有的三元组（i，j，k），其中 i<=j，而且有 i^2+j^2=k^2
-
-; a)
-(define (triples s t u)
-  (let ((left-u (stream-map (lambda (x) (list (stream-car s) (stream-car t) x))
-                            (stream-cdr u)))
-        (left-t (stream-map (lambda (x) (list (stream-car s) (stream-car u) x))
-                            (stream-cdr t))))
-    (cons-stream
-     (list (stream-car s) (stream-car t) (stream-car u))
-     (interleave left-u (interleave left-t
-                                    (triples (stream-cdr s)
-                                             (stream-cdr t)
-                                             (stream-cdr u)))))))
-
-; (define integers-triples (triples integers integers integers))
-
-(define (stream-filter pred stream)
-  (cond ((stream-null? stream) the-empty-stream)
-        ((pred (stream-car stream))
-         (cons-stream (stream-car stream)
-                      (stream-filter pred
-                                     (stream-cdr stream))))
-        (else (stream-filter pred (stream-cdr stream)))))
-
-; b) pythagoras
-(define (pythagoras-triples s t u)
-  (let ((this-triples (triples s t u)))
-    (define (square x)
-      (* x x))
-    ; check-square 写错会一直求值
-    (define (check-square tri)
-      (= (+ (square (car tri)) (square (car (cdr tri))) (square (car (cdr (cdr tri)))))))
-    (stream-filter (lambda (tri) (check-square tri)) this-triples)))
-
-; 但这还是错的
-(define integers-pythagoras-triples
-  (pythagoras-triples integers integers integers))
-
-(stream-ref integers-pythagoras-triples 0)
-(stream-ref integers-pythagoras-triples 1)
-(stream-ref integers-pythagoras-triples 2)
-(stream-ref integers-pythagoras-triples 3)
-(stream-ref integers-pythagoras-triples 4)
 
 
