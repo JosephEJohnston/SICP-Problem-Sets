@@ -28,6 +28,8 @@
   (cons-stream (/ 1.0 n)
                (stream-map - (pi-summands (+ n 2)))))
 
+; 以流 S 为参数，返回流中的元素是 S0，S0+S1，S0+S1+S2，...
+(provide partial-sums)
 (define (partial-sums s)
   (cons-stream (stream-car s) (add-streams (stream-cdr s) (partial-sums s))))
 
@@ -66,6 +68,7 @@
                (make-tableau transform
                              (transform s))))
 
+(provide accelerated-sequence)
 (define (accelerated-sequence transform s)
   (stream-map stream-car
               (make-tableau transform s)))

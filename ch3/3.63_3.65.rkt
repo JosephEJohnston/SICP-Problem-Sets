@@ -21,14 +21,27 @@
 (define (stream-limit stream diff)
   (let ((diff-stream (add-streams stream
                                   (stream-cdr (scale-stream stream -1)))))
-    (define (check-iter n s)
-      (let ((cur-diff (abs (stream-car diff-stream))))
+    (define (check-iter s n)
+      (let ((cur-diff (abs (stream-car s))))
         (if (< cur-diff diff)
             n
-             (check-iter (+ n 1) (stream-cdr s)))))
-    (stream-ref stream (check-iter 0 stream))))
+            (check-iter (stream-cdr s) (+ n 1)))))
+    (stream-ref stream (+ (check-iter diff-stream 0) 1))))
 
 #|
-; 还是有点奇怪
 (stream-limit (euler-transform pi-stream) 0.5)
 |#
+
+; 3.65, 2022/02/25, 参照上面 pi 的计算方式，计算逼近 2 的自然对数的三个序列
+; ln 2 = 1 - 1/2 + 1/3 - 1/4 + ...
+
+(define (ln n)
+  (cons-stream (/ 1.0 n)
+               (stream-map - (ln (+ n 1)))))
+
+(define ln-stream
+  (partial-sums (ln 1)))
+
+(define ln-acc-stream
+  (accelerated-sequence euler-transform ln-stream))
+
