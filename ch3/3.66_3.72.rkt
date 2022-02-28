@@ -85,7 +85,6 @@
       (= (+ (square (car tri)) (square (car (cdr tri)))) (square (car (cdr (cdr tri))))))
     (stream-filter (lambda (tri) (check-square tri)) this-triples)))
 
-; 但这还是错的
 (define integers-pythagoras-triples
   (pythagoras-triples integers integers integers))
 
