@@ -42,20 +42,31 @@
 ;; 也就是说，生成所有的三元组（i，j，k），其中 i<=j，而且有 i^2+j^2=k^2
 
 ; a)
+; 麻了，难度不小
 (define (triples s t u)
   (let ((left-u (stream-map (lambda (x) (list (stream-car s) (stream-car t) x))
                             (stream-cdr u)))
-        (left-t (stream-map (lambda (x) (list (stream-car s) (stream-car u) x))
-                            (stream-cdr t))))
+        (left-t-u (stream-map (lambda (x) (cons (stream-car s) x))
+                              (pairs (stream-cdr t) (stream-cdr u)))))
     (cons-stream
      (list (stream-car s) (stream-car t) (stream-car u))
-     (interleave left-u (interleave left-t
+     (interleave left-u (interleave left-t-u
                                     (triples (stream-cdr s)
                                              (stream-cdr t)
                                              (stream-cdr u)))))))
 
-; (define integers-triples (triples integers integers integers))
+(define integers-triples (triples integers integers integers))
+#|
+(define integers-triples (triples integers integers integers))
+(stream-ref integers-triples 0)
+(stream-ref integers-triples 1)
+(stream-ref integers-triples 2)
+(stream-ref integers-triples 3)
+(stream-ref integers-triples 4)
+(stream-ref integers-triples 5)
+|#
 
+; 暂用
 (define (stream-filter pred stream)
   (cond ((stream-null? stream) the-empty-stream)
         ((pred (stream-car stream))
@@ -71,17 +82,21 @@
       (* x x))
     ; check-square 写错会一直求值
     (define (check-square tri)
-      (= (+ (square (car tri)) (square (car (cdr tri))) (square (car (cdr (cdr tri)))))))
+      (= (+ (square (car tri)) (square (car (cdr tri)))) (square (car (cdr (cdr tri))))))
     (stream-filter (lambda (tri) (check-square tri)) this-triples)))
 
 ; 但这还是错的
 (define integers-pythagoras-triples
   (pythagoras-triples integers integers integers))
 
+#|
 (stream-ref integers-pythagoras-triples 0)
 (stream-ref integers-pythagoras-triples 1)
 (stream-ref integers-pythagoras-triples 2)
-(stream-ref integers-pythagoras-triples 3)
-(stream-ref integers-pythagoras-triples 4)
+; 往下就非常慢了
+; (stream-ref integers-pythagoras-triples 3)
+; (stream-ref integers-pythagoras-triples 4)
+|#
+
 
 
