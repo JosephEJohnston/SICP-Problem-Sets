@@ -85,10 +85,10 @@
       (= (+ (square (car tri)) (square (car (cdr tri)))) (square (car (cdr (cdr tri))))))
     (stream-filter (lambda (tri) (check-square tri)) this-triples)))
 
+#|
 (define integers-pythagoras-triples
   (pythagoras-triples integers integers integers))
 
-#|
 (stream-ref integers-pythagoras-triples 0)
 (stream-ref integers-pythagoras-triples 1)
 (stream-ref integers-pythagoras-triples 2)
@@ -97,5 +97,85 @@
 ; (stream-ref integers-pythagoras-triples 4)
 |#
 
+
+; 3.70, 2022/03/01, 实现权重函数
+; 其中 weight 是用于计算序对权重的过程，用于确定元素在归并所产生的流中出现的顺序
+(define (merge-weighted s1 s2 weight)
+  (let ((cur-s1 (stream-car s1))
+        (left-s1 (stream-cdr s1))
+        (cur-s2 (stream-car s2))
+        (left-s2 (stream-cdr s2)))
+    (cond ((< (weight cur-s1) (weight cur-s2))
+           (cons-stream cur-s1
+                        (merge-weighted left-s1 s2 weight)))
+          ((> (weight cur-s1) (weight cur-s2))
+           (cons-stream cur-s2
+                        (merge-weighted s1 left-s2 weight)))
+          (else
+           (cons-stream cur-s1
+                       (merge-weighted left-s1 left-s2 weight))))))
+
+; 还是有问题哈
+(define (weighted-pairs s1 s2 weight)
+  (let ((left-s2 (stream-map (lambda (x) (list (stream-car s1) x))
+                             (stream-cdr s2))))
+    (cons-stream
+     (list (stream-car s1) (stream-car s2))
+     (merge-weighted left-s2
+                     (weighted-pairs (stream-cdr s1) (stream-cdr s2) weight)
+                     weight))))
+
+#|
+(define (pairs s t)
+  (cons-stream
+   (list (stream-car s) (stream-car t))
+   (interleave
+    (stream-map (lambda (x) (list (stream-car s) x))
+                (stream-cdr t))
+    (pairs (stream-cdr s) (stream-cdr t)))))
+|#
+
+; a)
+
+#|
+(define (sum-weight pair)
+  (let ((first (car pair))
+        (second (car (cdr pair))))
+    (+ first second)))
+
+(define sum-pairs (weighted-pairs integers integers sum-weight))
+
+(stream-ref sum-pairs 0)
+(stream-ref sum-pairs 1)
+(stream-ref sum-pairs 2)
+(stream-ref sum-pairs 3)
+(stream-ref sum-pairs 4)
+(stream-ref sum-pairs 5)
+(stream-ref sum-pairs 6)
+(stream-ref sum-pairs 7)
+|#
+
+
+; b)
+
+(define (prime-product-weight pair)
+  (let ((first (car pair))
+        (second (car (cdr pair))))
+    (+ (* 2 first) (* 3 second) (* 5 first second))))
+
+(define (check-pair pair)
+  (define (check i)
+    (and (= 0 (remainder i 2))
+         (= 0 (remainder i 3))
+         (= 0 (remainder i 5))))
+    
+  (and (check (car pair))
+       (check (car (cdr pair)))))
+
+#|
+(define prime-product-pairs
+  (stream-filter check-pair
+                 (pairs integers integers)))
+|#
 
 
