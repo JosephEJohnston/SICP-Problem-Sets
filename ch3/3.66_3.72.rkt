@@ -100,44 +100,37 @@
 
 ; 3.70, 2022/03/01, 实现权重函数
 ; 其中 weight 是用于计算序对权重的过程，用于确定元素在归并所产生的流中出现的顺序
+
+; 注意 stream-cdr 的使用。当在 let 中使用时，会提前求值
 (define (merge-weighted s1 s2 weight)
   (let ((cur-s1 (stream-car s1))
-        (left-s1 (stream-cdr s1))
-        (cur-s2 (stream-car s2))
-        (left-s2 (stream-cdr s2)))
+        (cur-s2 (stream-car s2)))
     (cond ((< (weight cur-s1) (weight cur-s2))
            (cons-stream cur-s1
-                        (merge-weighted left-s1 s2 weight)))
+                        (merge-weighted (stream-cdr s1) s2 weight)))
           ((> (weight cur-s1) (weight cur-s2))
            (cons-stream cur-s2
-                        (merge-weighted s1 left-s2 weight)))
+                        (merge-weighted s1 (stream-cdr s2) weight)))
           (else
            (cons-stream cur-s1
-                       (merge-weighted left-s1 left-s2 weight))))))
+                        (cons-stream cur-s2
+                                     (merge-weighted (stream-cdr s1) (stream-cdr s2) weight)))))))
 
-; 还是有问题哈
+
 (define (weighted-pairs s1 s2 weight)
-  (let ((left-s2 (stream-map (lambda (x) (list (stream-car s1) x))
-                             (stream-cdr s2))))
-    (cons-stream
-     (list (stream-car s1) (stream-car s2))
-     (merge-weighted left-s2
-                     (weighted-pairs (stream-cdr s1) (stream-cdr s2) weight)
-                     weight))))
+  (let ((cur-car (list (stream-car s1) (stream-car s2))))
+    (cons-stream cur-car
+                 (merge-weighted (stream-map (lambda (x) (list (stream-car s1) x))
+                                             (stream-cdr s2))
+                                 (weighted-pairs
+                                  (stream-cdr s1)
+                                  (stream-cdr s2)
+                                  weight)
+                                 weight))))
 
-#|
-(define (pairs s t)
-  (cons-stream
-   (list (stream-car s) (stream-car t))
-   (interleave
-    (stream-map (lambda (x) (list (stream-car s) x))
-                (stream-cdr t))
-    (pairs (stream-cdr s) (stream-cdr t)))))
-|#
 
 ; a)
 
-#|
 (define (sum-weight pair)
   (let ((first (car pair))
         (second (car (cdr pair))))
@@ -145,6 +138,9 @@
 
 (define sum-pairs (weighted-pairs integers integers sum-weight))
 
+;(display-stream sum-pairs)
+
+#|
 (stream-ref sum-pairs 0)
 (stream-ref sum-pairs 1)
 (stream-ref sum-pairs 2)
@@ -154,7 +150,6 @@
 (stream-ref sum-pairs 6)
 (stream-ref sum-pairs 7)
 |#
-
 
 ; b)
 
@@ -172,10 +167,18 @@
   (and (check (car pair))
        (check (car (cdr pair)))))
 
-#|
 (define prime-product-pairs
   (stream-filter check-pair
-                 (pairs integers integers)))
-|#
+                 (weighted-pairs integers integers prime-product-weight)))
 
+#|
+(stream-ref prime-product-pairs 0)
+(stream-ref prime-product-pairs 1)
+(stream-ref prime-product-pairs 2)
+(stream-ref prime-product-pairs 3)
+(stream-ref prime-product-pairs 4)
+(stream-ref prime-product-pairs 5)
+(stream-ref prime-product-pairs 6)
+(stream-ref prime-product-pairs 7)
+|#
 
