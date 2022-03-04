@@ -182,3 +182,40 @@
 (stream-ref prime-product-pairs 7)
 |#
 
+; 3.71, 2022/03/04, Ramanujan 数
+(define (ramanujan-weight pair)
+  (define (cube x)
+    (* x x x))
+  (let ((first (car pair))
+        (second (car (cdr pair))))
+    (+ (cube first) (cube second))))
+
+(define ramanujan-pairs
+  (weighted-pairs integers integers ramanujan-weight))
+
+(define (check-ramanujan stream)
+  (let ((cur (stream-car stream))
+        (next (stream-car (stream-cdr stream))))
+    (if (= cur next)
+        (cons-stream cur
+                     (check-ramanujan (stream-cdr stream)))
+        (check-ramanujan (stream-cdr stream)))))
+
+(define ramanujan-stream
+  (check-ramanujan (stream-map ramanujan-weight ramanujan-pairs)))
+
+; 1729
+(stream-ref ramanujan-stream 0)
+; 4104
+(stream-ref ramanujan-stream 1)
+; 13832
+(stream-ref ramanujan-stream 2)
+; 20683
+(stream-ref ramanujan-stream 3)
+; 32832
+(stream-ref ramanujan-stream 4)
+; 39312
+(stream-ref ramanujan-stream 5)
+
+
+
