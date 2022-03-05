@@ -204,6 +204,7 @@
 (define ramanujan-stream
   (check-ramanujan (stream-map ramanujan-weight ramanujan-pairs)))
 
+#|
 ; 1729
 (stream-ref ramanujan-stream 0)
 ; 4104
@@ -216,6 +217,39 @@
 (stream-ref ramanujan-stream 4)
 ; 39312
 (stream-ref ramanujan-stream 5)
+|#
 
+; 3.72, 2022/03/04，流：这些数都能以三种不同方式表示为两个平方数之和
+; 并请显示出它们的分解形式
+; 基本和上一题一样
+
+(define (square-weight pair)
+  (define (square x)
+    (* x x))
+  (+ (square (car pair)) (square (car (cdr pair)))))
+
+
+(define (check-square-stream stream weight)
+  (let ((cur (stream-car stream))
+        (next (stream-car (stream-cdr stream)))
+        (after (stream-car (stream-cdr (stream-cdr stream)))))
+    (if (= (weight cur) (weight next) (weight after))
+        (cons-stream cur
+                     (cons-stream next
+                                  (cons-stream after
+                                               (check-square-stream (stream-cdr stream) weight))))
+        (check-square-stream (stream-cdr stream) weight))))
+
+(define square-resolve-stream
+  (check-square-stream (weighted-pairs integers integers square-weight) square-weight))
+
+#|
+(stream-ref square-resolve-stream 0)
+(stream-ref square-resolve-stream 1)
+(stream-ref square-resolve-stream 2)
+(stream-ref square-resolve-stream 3)
+(stream-ref square-resolve-stream 4)
+(stream-ref square-resolve-stream 5)
+|#
 
 
