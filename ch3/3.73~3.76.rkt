@@ -61,9 +61,11 @@
 
 |#
 
-; 解：
+#|
+; 解:
 (define zero-crossings
   (stream-map sign-change-detector sense-data (stream-cdr sense-data)))
+|#
 
 
 ; 3.75, 2022/03/06, 对信号做平滑，在提去过零点之前过滤掉噪声
@@ -72,12 +74,27 @@
 ; 提示：你将需要增加 make-zero-crossings 的参数的个数
 
 ; 解：
+#|
 (define (make-zero-crossings input-stream last-value last-avpt)
   (let ((avpt (/ (+ (stream-car input-stream) last-value) 2)))
     (cons-stream (sign-change-detector avpt last-avpt)
                  (make-zero-crossings (stream-cdr input-stream)
                                       (stream-car input-stream)
                                       avpt))))
+|#
 
+; 3.76, 2022/03/06, 实现 smooth
+(define (smooth s)
+  (let ((average (/ (+ (stream-car s) (stream-car (stream-cdr s))) 2)))
+    (cons-stream average
+                 (smooth (stream-cdr s)))))
 
+(define (make-zero-crossings input-stream last-value)
+  (cons-stream
+   (sign-change-detector (stream-car input-stream) last-value)
+   (make-zero-crossings (stream-cdr input-stream)
+                        (stream-car input-stream))))
+
+(define zero-crossings
+  (make-zero-crossings (smooth sense-data) 0))
 
