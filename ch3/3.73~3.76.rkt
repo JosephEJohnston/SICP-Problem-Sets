@@ -35,11 +35,14 @@
         ((and (< before 0) (> after 0)) 1)
         (else 0)))
 
+#|
 (define (make-zero-crossings input-stream last-value)
   (cons-stream
    (sign-change-detector (stream-car input-stream) last-value)
    (make-zero-crossings (stream-cdr input-stream)
                         (stream-car input-stream))))
+|#
+
 
 (define sense-data ones)
 
@@ -58,6 +61,23 @@
 
 |#
 
+; 解：
 (define zero-crossings
   (stream-map sign-change-detector sense-data (stream-cdr sense-data)))
+
+
+; 3.75, 2022/03/06, 对信号做平滑，在提去过零点之前过滤掉噪声
+; 先做每个感应值与前一感应值的平均值，而后在这样构造出的信号里提去过零点
+; 请找出 Louis 留在其中的错误，改正它，但不要改变程序的结构
+; 提示：你将需要增加 make-zero-crossings 的参数的个数
+
+; 解：
+(define (make-zero-crossings input-stream last-value last-avpt)
+  (let ((avpt (/ (+ (stream-car input-stream) last-value) 2)))
+    (cons-stream (sign-change-detector avpt last-avpt)
+                 (make-zero-crossings (stream-cdr input-stream)
+                                      (stream-car input-stream)
+                                      avpt))))
+
+
 
