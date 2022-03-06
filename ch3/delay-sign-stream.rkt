@@ -21,4 +21,4 @@
   y)
 
 ; 计算 e 的近似值
-(stream-ref (solve (lambda (y) y) 1 0.001) 1000)
+; (stream-ref (solve (lambda (y) y) 1 0.001) 1000)
