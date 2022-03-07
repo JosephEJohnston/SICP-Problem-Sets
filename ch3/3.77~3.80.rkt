@@ -37,11 +37,15 @@
   (define ddy (delay (add-streams (scale-stream dy a) (scale-stream y b))))
   y)
 
+; https://zhuanlan.zhihu.com/p/35278737
 #|
-(define test (solve-2nd 1 1 0.001 1 1 0.001))
-(stream-ref test 1)
+
 |#
-
-
-
+; b = -1, a = 2 时,解为 C* e^x
+; 程序还跑不通
+(define test (solve-2nd 2 -1 0.001 1 1 0.001))
+(stream-ref test 0)
+(stream-ref test 1)
+(stream-ref test 2)
+(stream-ref test 3)
 
