@@ -4,6 +4,7 @@
 (#%require "infinite-stream.rkt")
 (#%require (only racket provide))
 
+(provide integral)
 (define (integral delayed-integrand initial-value dt)
   (define int
     (cons-stream initial-value

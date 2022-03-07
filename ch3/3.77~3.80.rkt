@@ -30,3 +30,18 @@
 
 |#
 
+; 3.78, 2022/03/07，现在考虑设计一个信号处理系统，研究齐次二阶线性微分方程
+(define (solve-2nd a b dt y0 dy0 dy-divide-dt)
+  (define y (integral (delay dy) y0 dt))
+  (define dy (delay (integral (delay ddy) dy0 dy-divide-dt)))
+  (define ddy (delay (add-streams (scale-stream dy a) (scale-stream y b))))
+  y)
+
+#|
+(define test (solve-2nd 1 1 0.001 1 1 0.001))
+(stream-ref test 1)
+|#
+
+
+
+
