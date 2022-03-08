@@ -54,3 +54,25 @@
 (stream-ref test 2000)
 |#
 
+; 3.79, 2022/03/08，推广 solve-2nd
+; 使之能求解一般的二次微分方程 d^2y/dt^2=f(dy/dt,y)
+; https://www.zhihu.com/question/54563858
+(define (solve-2nd-common f1 f2 dt y0 dy0 dy-divide-dt)
+  (define y (integral (delay dy) y0 dt))
+  (define dy (delay (integral (delay ddy) dy0 dy-divide-dt)))
+  (define ddy (delay (add-streams (stream-map f1 (force dy)) (stream-map f2 y))))
+  y)
+
+#|
+; 我不知道自己写得是啥，就这样吧
+(define test (solve-2nd-common (lambda (y) y) (lambda (y) y) 0.001 1 1 0.001))
+(stream-ref test 0)
+(stream-ref test 1)
+(stream-ref test 2)
+(stream-ref test 3)
+(stream-ref test 4)
+(stream-ref test 5)
+(stream-ref test 1000)
+(stream-ref test 2000)
+|#
+
