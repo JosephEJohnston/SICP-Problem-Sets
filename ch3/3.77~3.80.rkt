@@ -76,3 +76,13 @@
 (stream-ref test 2000)
 |#
 
+; 3.80, 2022/03/08, 实现串联 RLC 电路
+(define (RLC R L C dt)
+  (define vR (* iR R))
+  (define vL (* L (integral iL 0 dt)))
+  (define iC (* C (integral vC 0 dt)))
+  (define iR (- 0 iC))
+  (define iL iR)
+  (define vC (+ vL vR))
+  
+
