@@ -34,7 +34,7 @@
 (define (solve-2nd a b dt y0 dy0 dy-divide-dt)
   (define y (integral (delay dy) y0 dt))
   (define dy (delay (integral (delay ddy) dy0 dy-divide-dt)))
-  (define ddy (delay (add-streams (scale-stream dy a) (scale-stream y b))))
+  (define ddy (delay (add-streams (scale-stream (force dy) a) (scale-stream y b))))
   y)
 
 ; https://zhuanlan.zhihu.com/p/35278737
@@ -42,10 +42,15 @@
 
 |#
 ; b = -1, a = 2 时,解为 C* e^x
-; 程序还跑不通
+#|
 (define test (solve-2nd 2 -1 0.001 1 1 0.001))
 (stream-ref test 0)
 (stream-ref test 1)
 (stream-ref test 2)
 (stream-ref test 3)
+(stream-ref test 4)
+(stream-ref test 5)
+(stream-ref test 1000)
+(stream-ref test 2000)
+|#
 
