@@ -77,12 +77,39 @@
 |#
 
 ; 3.80, 2022/03/08, 实现串联 RLC 电路
+; 那些方程用算算就行，肯定是成立的
 (define (RLC R L C dt)
-  (define vR (* iR R))
-  (define vL (* L (integral iL 0 dt)))
-  (define iC (* C (integral vC 0 dt)))
-  (define iR (- 0 iC))
-  (define iL iR)
-  (define vC (+ vL vR))
-  
+  (define (RLC-pairs vC0 iL0)
+    (define vC (integral (delay dvC) vC0 dt))
+    (define iL (integral (delay diL) iL0 dt))
+    (define dvC (delay (scale-stream iL (- 0 (/ 1 C)))))
+    (define diL (delay (add-streams
+                        (scale-stream iL (- 0 (/ R L)))
+                        (scale-stream vC (/ 1 L)))))
+    (cons vC iL))
+  RLC-pairs)
+
+#|
+; 测试通过
+(define test-RLC (RLC 1 1 0.2 0.1))
+
+(define test-RLC-pairs (test-RLC 10 0))
+
+(define left-RLC-pairs (car test-RLC-pairs))
+
+(define right-RLC-pairs (cdr test-RLC-pairs))
+
+(stream-ref left-RLC-pairs 0)
+(stream-ref left-RLC-pairs 1)
+(stream-ref left-RLC-pairs 2)
+(stream-ref left-RLC-pairs 3)
+(stream-ref left-RLC-pairs 4)
+(stream-ref right-RLC-pairs 0)
+(stream-ref right-RLC-pairs 1)
+(stream-ref right-RLC-pairs 2)
+(stream-ref right-RLC-pairs 3)
+(stream-ref right-RLC-pairs 4)
+|#
+
+
 
