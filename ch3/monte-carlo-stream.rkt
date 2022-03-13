@@ -6,6 +6,7 @@
 
 (define random-init 1)
 
+(provide rand-update)
 (define (rand-update seed)
   (let ((A 48271)
         (M 2147483647))
