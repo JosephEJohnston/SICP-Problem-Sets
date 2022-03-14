@@ -21,7 +21,6 @@
       (floor (random)))))
 
 ; 这个随机数需要是整数
-(provide rand)
 (define rand
   (let ((x random-init))
     (lambda ()
